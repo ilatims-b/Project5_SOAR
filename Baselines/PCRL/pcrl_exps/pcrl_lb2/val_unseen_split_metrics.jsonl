@@ -1,0 +1,1 @@
+{"epoch": 0, "metrics": {"rouge_c_rouge1": 0.0, "rouge_c_rouge2": 0.0, "rouge_c_rougeL": 0.0, "rouge_c_rougeLsum": 0.0, "rouge_r_rouge1": 0.009940357852882704, "rouge_r_rouge2": 0.0, "rouge_r_rougeL": 0.009940357852882704, "rouge_r_rougeLsum": 0.009940357852882704, "compressed_ratio": 0.031328351871911415}}
