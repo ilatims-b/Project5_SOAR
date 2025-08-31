@@ -14,7 +14,7 @@ class SelectiveContext:
         from compressor._selective_context import _SelectiveContext
         self.sc = _SelectiveContext(model_type=self.model_type, lang=self.lang)
 
-    def run(self, question: str, context: str, choice_A: str, choice_B: str, choice_C: str, choice_D: str):
+    def run(self, question: str, context: str, choice_A: str = None, choice_B: str = None, choice_C: str = None, choice_D: str = None):
         # Hypothesis: Only compress the context string
         compressed_context, reduced_content, unit_mask, original_units = self.sc(context, self.reduce_ratio, self.reduce_level)
         

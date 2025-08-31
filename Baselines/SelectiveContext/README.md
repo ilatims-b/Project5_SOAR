@@ -35,6 +35,7 @@ Due to dependency conflicts, you will need two separate Conda environments.
 2.  **Environment for Selective Context:**
     ```bash
     conda env create -f selective_context.yml
+    conda activate selective-context
     python -m spacy download en_core_web_sm
     ```
 
@@ -47,7 +48,7 @@ The benchmark process requires two separate shell sessions because the model ser
 In your first terminal, activate the `selective_context` environment and run the compression script. Using `--dryrun` is recommended for the first time to ensure everything is set up correctly.
 
 ```bash
-conda activate selective_context
+conda activate selective-context
 python compress.py \
     --save_dir results \
     --compressor_model_type microsoft/Phi-3-mini-128k-instruct \

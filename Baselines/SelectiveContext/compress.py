@@ -8,9 +8,9 @@ import torch
 from compressor.selective_context import SelectiveContext
 
 def compress_dataset(args):
-    """Compress the LongBench-v2 dataset using SelectiveContext"""
-    print("Loading LongBench-v2 dataset...")
-    dataset = load_dataset('THUDM/LongBench-v2', split='train')
+    """Compress the MS-MARCO dataset using SelectiveContext"""
+    print("Loading MS-MARCO dataset...")
+    dataset = load_dataset('microsoft/ms_marco', 'v2.1', split='test')
     
     # Apply dryrun limit if specified
     if args.dryrun > 0:
@@ -31,78 +31,88 @@ def compress_dataset(args):
     for item in tqdm(dataset):
         try:
             # Extract the data
-            question = item['question']
-            context = item['context']
-            choice_A = item['choice_A']
-            choice_B = item['choice_B']
-            choice_C = item['choice_C']
-            choice_D = item['choice_D']
-            
-            # Compress using SelectiveContext and get the token mask directly
-            (
-                compressed_question, compressed_context, 
-                compressed_A, compressed_B, compressed_C, compressed_D,
-                unit_mask, original_units
-            ) = compressor.run(
-                question, context, choice_A, choice_B, choice_C, choice_D
-            )
+            question = item['query']
+            passages = item['passages']
+            passage_texts = passages['passage_text']
+            full_context = " ".join(passage_texts)
+
+            # Compress each passage individually
+            compressed_passage_texts = []
+            context_units_per_passage = []
+            kept_masks_per_passage = []
+
+            for passage_text in passage_texts:
+                (
+                    _, # We dont compress the question
+                    compressed_passage, 
+                    _, _, _, _, # We don't have answer choices (legacy code from LongBench)
+                    unit_mask, 
+                    original_units
+                ) = compressor.run(
+                    question, passage_text
+                )
+                compressed_passage_texts.append(compressed_passage)
+                context_units_per_passage.append(original_units)
+                kept_masks_per_passage.append(unit_mask)
+
+            # Reconstruct compressed context for ratio calculation
+            compressed_context_full = " ".join(compressed_passage_texts)
             
             # Create compressed item
             compressed_item = {
-                "_id": item["_id"],
-                "domain": item["domain"],
-                "sub_domain": item["sub_domain"],
-                "difficulty": item["difficulty"],
-                "length": item["length"],
-                "question": compressed_question,
-                "choice_A": compressed_A,
-                "choice_B": compressed_B,
-                "choice_C": compressed_C,
-                "choice_D": compressed_D,
-                "answer": item["answer"],
-                "context": compressed_context,
-                "original_context": context,  # Keep original for comparison
-                "context_unit": original_units,
-                "kept_context_unit_mask": unit_mask,
-                "compression_words_ratio": len(compressed_context.split()) / len(context.split()) if context.split() else 1.0,
+                "query_id": item["query_id"],
+                "query_type": item["query_type"],
+                "query": item["query"],
+                "answers": item["answers"],
+                "wellFormedAnswers": item.get("wellFormedAnswers", []),
+                "passages": {
+                    "passage_text": compressed_passage_texts,
+                    "is_selected": passages["is_selected"],
+                    "url": passages["url"],
+                    "context_unit": context_units_per_passage,
+                    "kept_context_unit_mask": kept_masks_per_passage,
+                },
+                "original_passages": item["passages"],
+                "compression_words_ratio": len(compressed_context_full.split()) / len(full_context.split()) if full_context.split() else 1.0,
+                "compression_characters_ratio": len(compressed_context_full) / len(full_context) if full_context else 1.0,
+                "compression_rate": args.compressor_reduce_ratio,
+                "compression_level": args.compressor_reduce_level,
                 "compression_error": ""
             }
             
             compressed_data.append(compressed_item)
             
         except Exception as e:
-            print(f"Error processing item {item['_id']}: {e}")
+            print(f"Error processing item {item['query_id']}: {e}")
             # If compression fails, keep original data
+            context = " ".join(item['passages']['passage_text'])
             compressed_item = {
-                "_id": item["_id"],
-                "domain": item["domain"],
-                "sub_domain": item["sub_domain"],
-                "difficulty": item["difficulty"],
-                "length": item["length"],
-                "question": item["question"],
-                "choice_A": item["choice_A"],
-                "choice_B": item["choice_B"],
-                "choice_C": item["choice_C"],
-                "choice_D": item["choice_D"],
-                "answer": item["answer"],
-                "context": item["context"],
-                "original_context": item["context"],
+                "query_id": item["query_id"],
+                "query_type": item["query_type"],
+                "query": item["query"],
+                "answers": item["answers"],
+                "wellFormedAnswers": item.get("wellFormedAnswers", []),
+                "passages": item["passages"],
+                "original_passages": item["passages"],
                 "context_unit": [],
                 "kept_context_unit_mask": [],
                 "compression_words_ratio": 1.0,
+                "compression_characters_ratio": 1.0,
+                "compression_rate": args.compressor_reduce_ratio,
+                "compression_level": args.compressor_reduce_level,
                 "compression_error": str(e)
             }
             compressed_data.append(compressed_item)
     
     # Create and save compressed dataset
     compressed_dataset = Dataset.from_list(compressed_data)
-    output_path = os.path.join(args.save_dir, "LongBench-v2-compressed")
+    output_path = os.path.join(args.save_dir, "MS-MARCO-compressed")
     compressed_dataset.save_to_disk(output_path)
     
     # Save metadata
     metadata = {
-        "original_dataset": "THUDM/LongBench-v2",
-        "compressed_dataset": "LongBench-v2-compressed",
+        "original_dataset": "MS-MARCO",
+        "compressed_dataset": "MS-MARCO-compressed",
         "compressor": "SelectiveContext",
         "compressor_params": {
             "model_type": args.compressor_model_type,
@@ -124,7 +134,7 @@ def compress_dataset(args):
     print(f"Average compression ratio: {metadata['average_compression_words_ratio']:.3f}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Compress LongBench-v2 dataset using SelectiveContext")
+    parser = argparse.ArgumentParser(description="Compress MS-MARCO dataset using SelectiveContext")
     parser.add_argument("--save_dir", "-s", type=str, default="results", 
                        help="Directory to save compressed dataset")
     parser.add_argument("--compressor_model_type", "-cmt", type=str, default="microsoft/Phi-3-mini-128k-instruct",

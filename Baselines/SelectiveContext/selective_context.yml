@@ -78,4 +78,5 @@ dependencies:
     - datasets
     - filelock
     - nltk
+    - pydantic
 prefix: /home/ez/miniconda3/envs/selective-context
