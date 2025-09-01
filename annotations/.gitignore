@@ -1,0 +1,5 @@
+/.windsurf
+/__pycache__
+*.sl
+*.err
+*.out
