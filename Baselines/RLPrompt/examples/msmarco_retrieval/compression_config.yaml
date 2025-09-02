@@ -1,0 +1,55 @@
+# MS MARCO V2.1 Compression Configuration
+# This file configures RL Prompt training for prompt compression
+
+dataset: msmarco_v2.1
+task_lm: roberta-base
+prompt_length: 8
+max_episodes: 1000
+learning_rate: 0.001
+batch_size: 32
+random_seed: 42
+
+# Compression settings
+compression:
+  target_ratio: 0.7          # Target compression ratio (0.7 = 30% reduction)
+  min_ratio: 0.5             # Minimum acceptable compression ratio
+  max_ratio: 0.9             # Maximum acceptable compression ratio
+  quality_threshold: 0.8     # Minimum performance retention threshold
+
+# Reward function configuration
+reward:
+  performance_weight: 0.7     # Weight for accuracy/F1 performance
+  compression_weight: 0.3     # Weight for compression efficiency
+  baseline_accuracy: 0.85    # Expected baseline accuracy
+  compression_bonus: 0.1      # Bonus for achieving target compression
+
+# Training hyperparameters
+training:
+  gamma: 0.99                # Discount factor for RL
+  entropy_coef: 0.01         # Entropy coefficient for exploration
+  value_coef: 0.5            # Value function coefficient
+  max_grad_norm: 0.5         # Maximum gradient norm for clipping
+  
+# Model architecture
+model:
+  hidden_size: 256           # Hidden layer size
+  num_layers: 2              # Number of transformer layers
+  dropout: 0.1               # Dropout rate
+  
+# Evaluation settings
+evaluation:
+  eval_interval: 100         # Evaluate every N episodes
+  eval_samples: 1000         # Number of samples for evaluation
+  save_best_only: true       # Save only the best model
+  
+# Data processing
+data:
+  max_query_length: 128      # Maximum query length
+  max_passage_length: 512    # Maximum passage length
+  num_negative_samples: 3    # Number of negative samples per query
+  
+# Output settings
+output:
+  save_dir: "results/msmarco_compression"
+  log_interval: 10           # Log every N episodes
+  checkpoint_interval: 100   # Save checkpoint every N episodes 
