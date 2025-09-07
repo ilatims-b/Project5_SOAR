@@ -1,4 +1,4 @@
-# LLMLingua2 Pipeline - Professional Prompt Compression System
+# (LLMLingua2) Baseline Pipeline - Prompt Compression and Evaluation
 
 A modular pipeline for prompt compression, response generation, and comprehensive evaluation using LLMLingua2. This system supports both custom datasets and direct MS-MARCO dataset integration with flexible phase execution and logging.
 
