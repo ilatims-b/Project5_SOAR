@@ -73,8 +73,8 @@ Input Data → Compression → Generation → Evaluation → Results
 
 ```bash
 # Clone the repository
-git clone https://github.com/ilatims-b/soar5.git
-cd soar5/Baseline\ and\ evaluation
+git clone https://github.com/ilatims-b/Project5_SOAR.git
+cd Project5_SOAR/Baselines/Baseline\-\ complete\ pipeline
 
 # Install core dependencies
 pip install -r requirements.txt
@@ -90,13 +90,11 @@ python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
 
 **Core Requirements:**
 - `llmlingua` - LLMLingua2 compression library
-- `transformers` - Hugging Face transformers
-- `torch` - PyTorch for GPU acceleration
 - `requests` - HTTP client for API calls
 - `pandas` - Data manipulation
+- `datasets` - For MS-MARCO dataset loading
 
 **Optional Requirements:**
-- `datasets` - For MS-MARCO dataset loading
 - `nltk` - For BLEU evaluation
 - `rouge-score` - For ROUGE evaluation
 
@@ -110,7 +108,7 @@ python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
   "api_config": {
     "api_key": "your_scaledown_api_key",
     "base_url": "https://api.scaledown.xyz/compress/",
-    "model": "gemini/gemini-2.0-flash"
+    "model": "gemini-2.5-flash"
   },
   "compression_methods": {
     "rate_based": {"rate": 0.3},
@@ -121,14 +119,14 @@ python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
     "enabled": true,
     "metric": "llm_judge",
     "parameters": {
-      "judge_model": "gemini/gemini-1.5-pro",
+      "judge_model": "gemini-2.5-flash",
       "threshold": 0.5
     }
   },
   "dataset_config": {
     "version": "v2.1",
     "query_type": "NUMERIC",
-    "max_examples": 100,
+    "max_examples": 10,
     "start": 0
   }
 }
