@@ -1,7 +1,12 @@
 # LLMLingua2 Pipeline - Professional Prompt Compression System
 
-A modular, enterprise-grade pipeline for prompt compression, response generation, and comprehensive evaluation using LLMLingua2. This system supports both custom datasets and direct MS-MARCO dataset integration with flexible phase execution and professional logging capabilities.
+A modular pipeline for prompt compression, response generation, and comprehensive evaluation using LLMLingua2. This system supports both custom datasets and direct MS-MARCO dataset integration with flexible phase execution and logging.
 
+Currently for llmlingua2 compression methods and judge with llm evaluation. Can easily be integrated to othe compression methods by modifying compressor.py and pipeline.py. 
+
+Can easily add other metrics by modifying metrics.py, evaluator.py and pipeline.py.
+
+This folder also has LLMLingua2 train script modified original train script to train using smaller compute and lesser api usage.
 ## Table of Contents
 
 - [Features](#features)
